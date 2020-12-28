@@ -1,0 +1,453 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+
+library(aod)
+library(ggplot2)
+library(car)
+library(mlogit)
+library(caret)
+library(ROCR)
+
+#__________------------------------------------------------------------------------------------------------------------------
+
+df2$prev_time_elapsed_serp = as.numeric(df2$prev_time_elapsed_serp)
+df2$prev_num_content_distinct = as.numeric(df2$prev_num_content_distinct)
+df2$prev_query_len = as.numeric(df2$prev_query_len)
+df2$prev_num_query_noclicks = as.numeric(df2$prev_num_query_noclicks)
+df2$prev_num_bookmarks = as.numeric(df2$prev_num_bookmarks)
+df2$prev_time_elapsed = as.numeric(df2$prev_time_elapsed)
+
+
+df2$probhelp_difficult_articulate<-relevel(df2$probhelp_difficult_articulate, "0")
+contrasts(df2$probhelp_difficult_articulate)
+
+
+inTrain <- createDataPartition(y = df2$probhelp_difficult_articulate, p = .60, list = FALSE)
+training <- df2[inTrain,]
+testing <- df2[-inTrain,]
+
+dim(training)
+dim(testing)
+
+
+model <- glm(probhelp_difficult_articulate ~ prev_num_content_distinct + prev_num_bookmarks + prev_time_elapsed + prev_time_elapsed_serp + prev_query_len + prev_num_query_noclicks, data = training, family = binomial())
+summary(model)
+
+fitted.results <- predict(model,newdata=testing,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != testing$probhelp_difficult_articulate)
+print(paste('Accuracy',1-misClasificError))
+
+p <- predict(model, newdata=testing, type="response")
+pr <- prediction(p, testing$probhelp_difficult_articulate)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+#exp(coef(model$finalModel))
+
+modelChi <- model$null.deviance - model$deviance
+modelChi
+chidf <- model$df.null - model$df.residual
+chidf
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+chisq.prob
+R2.hl<-modelChi/model$null.deviance
+R2.hl
+R.cs <- 1 - exp ((model$deviance - model$null.deviance)/400) 
+R.cs
+
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+```
+
+```{r}
+df2$prev_time_elapsed_serp = as.numeric(df2$prev_time_elapsed_serp)
+df2$prev_num_content_distinct = as.numeric(df2$prev_num_content_distinct)
+df2$prev_query_len = as.numeric(df2$prev_query_len)
+df2$prev_num_query_noclicks = as.numeric(df2$prev_num_query_noclicks)
+df2$prev_num_bookmarks = as.numeric(df2$prev_num_bookmarks)
+df2$prev_time_elapsed = as.numeric(df2$prev_time_elapsed)
+
+
+df2$probhelp_irrelevant_results<-relevel(df2$probhelp_irrelevant_results, "0")
+
+inTrain <- createDataPartition(y = df2$probhelp_irrelevant_results, p = .60, list = FALSE)
+training <- df2[inTrain,]
+testing <- df2[-inTrain,]
+
+
+model <- glm(probhelp_irrelevant_results ~ prev_num_content_distinct + prev_num_bookmarks + prev_time_elapsed + prev_time_elapsed_serp + prev_query_len + prev_num_query_noclicks, data = df2, family = binomial())
+summary(model)
+
+fitted.results <- predict(model,newdata=testing,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != testing$probhelp_irrelevant_results)
+print(paste('Accuracy',1-misClasificError))
+
+p <- predict(model, newdata=testing, type="response")
+pr <- prediction(p, testing$probhelp_irrelevant_results)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+exp(coef(model$finalModel))
+
+modelChi <- model$null.deviance - model$deviance
+modelChi
+chidf <- model$df.null - model$df.residual
+chidf
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+chisq.prob
+R2.hl<-modelChi/model$null.deviance
+R2.hl
+R.cs <- 1 - exp ((model$deviance - model$null.deviance)/400) 
+R.cs
+
+```
+
+```{r}
+df2$prev_time_elapsed_serp = as.numeric(df2$prev_time_elapsed_serp)
+df2$prev_num_content_distinct = as.numeric(df2$prev_num_content_distinct)
+df2$prev_query_len = as.numeric(df2$prev_query_len)
+df2$prev_num_query_noclicks = as.numeric(df2$prev_num_query_noclicks)
+df2$prev_num_bookmarks = as.numeric(df2$prev_num_bookmarks)
+df2$prev_time_elapsed = as.numeric(df2$prev_time_elapsed)
+
+
+df2$probhelp_topknowledge_lack<-relevel(df2$probhelp_topknowledge_lack, "0")
+inTrain <- createDataPartition(y = df2$probhelp_topknowledge_lack, p = .60, list = FALSE)
+training <- df2[inTrain,]
+testing <- df2[-inTrain,]
+
+
+model <- glm(probhelp_topknowledge_lack ~ prev_num_content_distinct + prev_num_bookmarks + prev_time_elapsed + prev_time_elapsed_serp + prev_query_len + prev_num_query_noclicks, data = df2, family = binomial())
+summary(model)
+
+fitted.results <- predict(model,newdata=testing,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != testing$probhelp_topknowledge_lack)
+print(paste('Accuracy',1-misClasificError))
+
+p <- predict(model, newdata=testing, type="response")
+pr <- prediction(p, testing$probhelp_topknowledge_lack)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+exp(coef(model$finalModel))
+
+modelChi <- model$null.deviance - model$deviance
+modelChi
+chidf <- model$df.null - model$df.residual
+chidf
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+chisq.prob
+R2.hl<-modelChi/model$null.deviance
+R2.hl
+R.cs <- 1 - exp ((model$deviance - model$null.deviance)/400) 
+R.cs
+
+
+
+```
+
+```{r}
+
+df2$prev_time_elapsed_serp = as.numeric(df2$prev_time_elapsed_serp)
+df2$prev_num_content_distinct = as.numeric(df2$prev_num_content_distinct)
+df2$prev_query_len = as.numeric(df2$prev_query_len)
+df2$prev_num_query_noclicks = as.numeric(df2$prev_num_query_noclicks)
+df2$prev_num_bookmarks = as.numeric(df2$prev_num_bookmarks)
+df2$prev_time_elapsed = as.numeric(df2$prev_time_elapsed)
+
+df2$probhelp_patience_lack<-relevel(df2$probhelp_patience_lack, "0")
+
+inTrain <- createDataPartition(y = df2$probhelp_patience_lack, p = .60, list = FALSE)
+training <- df2[inTrain,]
+testing <- df2[-inTrain,]
+
+model <- glm(probhelp_patience_lack ~ prev_num_content_distinct + prev_num_bookmarks + prev_time_elapsed + prev_time_elapsed_serp + prev_query_len + prev_num_query_noclicks, data = df2, family = binomial())
+summary(model)
+
+fitted.results <- predict(model,newdata=testing,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != testing$probhelp_patience_lack)
+print(paste('Accuracy',1-misClasificError))
+
+p <- predict(model, newdata=testing, type="response")
+pr <- prediction(p, testing$probhelp_patience_lack)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+exp(coef(model$finalModel))
+
+modelChi <- model$null.deviance - model$deviance
+modelChi
+chidf <- model$df.null - model$df.residual
+chidf
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+chisq.prob
+R2.hl<-modelChi/model$null.deviance
+R2.hl
+R.cs <- 1 - exp ((model$deviance - model$null.deviance)/400) 
+R.cs
+
+
+```
+
+```{r}
+df2$prev_time_elapsed_serp = as.numeric(df2$prev_time_elapsed_serp)
+df2$prev_num_content_distinct = as.numeric(df2$prev_num_content_distinct)
+df2$prev_query_len = as.numeric(df2$prev_query_len)
+df2$prev_num_query_noclicks = as.numeric(df2$prev_num_query_noclicks)
+df2$prev_num_bookmarks = as.numeric(df2$prev_num_bookmarks)
+df2$prev_time_elapsed = as.numeric(df2$prev_time_elapsed)
+
+
+df2$probhelp_credibility_uncertain<-relevel(df2$probhelp_credibility_uncertain, "0")
+
+inTrain <- createDataPartition(y = df2$probhelp_credibility_uncertain, p = .60, list = FALSE)
+training <- df2[inTrain,]
+testing <- df2[-inTrain,]
+
+model <- glm(probhelp_credibility_uncertain ~ prev_num_content_distinct + prev_num_bookmarks + prev_time_elapsed + prev_time_elapsed_serp + prev_query_len + prev_num_query_noclicks, data = df2, family = binomial())
+summary(model)
+
+fitted.results <- predict(model,newdata=testing,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != testing$probhelp_credibility_uncertain)
+print(paste('Accuracy',1-misClasificError))
+
+p <- predict(model, newdata=testing, type="response")
+pr <- prediction(p, testing$probhelp_credibility_uncertain)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+exp(coef(model$finalModel))
+
+modelChi <- model$null.deviance - model$deviance
+modelChi
+chidf <- model$df.null - model$df.residual
+chidf
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+chisq.prob
+R2.hl<-modelChi/model$null.deviance
+R2.hl
+R.cs <- 1 - exp ((model$deviance - model$null.deviance)/400) 
+R.cs
+
+
+```
+
+```{r}
+
+df2$prev_time_elapsed_serp = as.numeric(df2$prev_time_elapsed_serp)
+df2$prev_num_content_distinct = as.numeric(df2$prev_num_content_distinct)
+df2$prev_query_len = as.numeric(df2$prev_query_len)
+df2$prev_num_query_noclicks = as.numeric(df2$prev_num_query_noclicks)
+df2$prev_num_bookmarks = as.numeric(df2$prev_num_bookmarks)
+df2$prev_time_elapsed = as.numeric(df2$prev_time_elapsed)
+
+df2$probhelp_sources_unaware<-relevel(df2$probhelp_sources_unaware, "0")
+
+inTrain <- createDataPartition(y = df2$probhelp_sources_unaware, p = .60, list = FALSE)
+training <- df2[inTrain,]
+testing <- df2[-inTrain,]
+
+model <- glm(probhelp_sources_unaware ~ prev_num_content_distinct + prev_num_bookmarks + prev_time_elapsed + prev_time_elapsed_serp + prev_query_len + prev_num_query_noclicks, data = df2, family = binomial())
+summary(model)
+
+fitted.results <- predict(model,newdata=testing,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != testing$probhelp_sources_unaware)
+print(paste('Accuracy',1-misClasificError))
+
+p <- predict(model, newdata=testing, type="response")
+pr <- prediction(p, testing$probhelp_sources_unaware)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+exp(coef(model$finalModel))
+
+modelChi <- model$null.deviance - model$deviance
+modelChi
+chidf <- model$df.null - model$df.residual
+chidf
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+chisq.prob
+R2.hl<-modelChi/model$null.deviance
+R2.hl
+R.cs <- 1 - exp ((model$deviance - model$null.deviance)/400) 
+R.cs
+
+```
+
+```{r}
+df2$prev_time_elapsed_serp = as.numeric(df2$prev_time_elapsed_serp)
+df2$prev_num_content_distinct = as.numeric(df2$prev_num_content_distinct)
+df2$prev_query_len = as.numeric(df2$prev_query_len)
+df2$prev_num_query_noclicks = as.numeric(df2$prev_num_query_noclicks)
+df2$prev_num_bookmarks = as.numeric(df2$prev_num_bookmarks)
+df2$prev_time_elapsed = as.numeric(df2$prev_time_elapsed)
+
+
+df2$probhelp_toomuch_information<-relevel(df2$probhelp_toomuch_information, "0")
+
+inTrain <- createDataPartition(y = df2$probhelp_toomuch_information, p = .60, list = FALSE)
+training <- df2[inTrain,]
+testing <- df2[-inTrain,]
+
+model <- glm(probhelp_toomuch_information ~ prev_num_content_distinct + prev_num_bookmarks + prev_time_elapsed + prev_time_elapsed_serp + prev_query_len + prev_num_query_noclicks, data = df2, family = binomial())
+summary(model)
+
+fitted.results <- predict(model,newdata=testing,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != testing$probhelp_toomuch_information)
+print(paste('Accuracy',1-misClasificError))
+
+p <- predict(model, newdata=testing, type="response")
+pr <- prediction(p, testing$probhelp_toomuch_information)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+exp(coef(model$finalModel))
+
+modelChi <- model$null.deviance - model$deviance
+modelChi
+chidf <- model$df.null - model$df.residual
+chidf
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+chisq.prob
+R2.hl<-modelChi/model$null.deviance
+R2.hl
+R.cs <- 1 - exp ((model$deviance - model$null.deviance)/400) 
+R.cs
+
+
+```
+
+```{r}
+
+df2$prev_time_elapsed_serp = as.numeric(df2$prev_time_elapsed_serp)
+df2$prev_num_content_distinct = as.numeric(df2$prev_num_content_distinct)
+df2$prev_query_len = as.numeric(df2$prev_query_len)
+df2$prev_num_query_noclicks = as.numeric(df2$prev_num_query_noclicks)
+df2$prev_num_bookmarks = as.numeric(df2$prev_num_bookmarks)
+df2$prev_time_elapsed = as.numeric(df2$prev_time_elapsed)
+
+df2$probhelp_source_unavailable<-relevel(df2$probhelp_source_unavailable, "0")
+
+inTrain <- createDataPartition(y = df2$probhelp_difficult_articulate, p = .60, list = FALSE)
+training <- df2[inTrain,]
+testing <- df2[-inTrain,]
+
+model <- glm(probhelp_source_unavailable ~ prev_num_content_distinct + prev_num_bookmarks + prev_time_elapsed + prev_time_elapsed + prev_time_elapsed_serp + prev_query_len + prev_num_query_noclicks, data = df2, family = binomial())
+summary(model)
+
+fitted.results <- predict(model,newdata=testing,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != testing$probhelp_source_unavailable)
+print(paste('Accuracy',1-misClasificError))
+
+p <- predict(model, newdata=testing, type="response")
+pr <- prediction(p, testing$probhelp_source_unavailable)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+exp(coef(model$finalModel))
+
+modelChi <- model$null.deviance - model$deviance
+modelChi
+chidf <- model$df.null - model$df.residual
+chidf
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+chisq.prob
+R2.hl<-modelChi/model$null.deviance
+R2.hl
+R.cs <- 1 - exp ((model$deviance - model$null.deviance)/400) 
+R.cs
+
+```
+
+```{r}
+df2$prev_time_elapsed_serp = as.numeric(df2$prev_time_elapsed_serp)
+df2$prev_num_content_distinct = as.numeric(df2$prev_num_content_distinct)
+df2$prev_query_len = as.numeric(df2$prev_query_len)
+df2$prev_num_query_noclicks = as.numeric(df2$prev_num_query_noclicks)
+df2$prev_num_bookmarks = as.numeric(df2$prev_num_bookmarks)
+df2$prev_time_elapsed = as.numeric(df2$prev_time_elapsed)
+
+
+df2$probhelp_no_problem<-relevel(df2$probhelp_no_problem, "0")
+
+inTrain <- createDataPartition(y = df2$probhelp_no_problem, p = .60, list = FALSE)
+training <- df2[inTrain,]
+testing <- df2[-inTrain,]
+
+model <- glm(probhelp_no_problem ~ prev_num_content_distinct + prev_num_bookmarks + prev_time_elapsed + prev_time_elapsed_serp + prev_query_len + prev_num_query_noclicks, data = df2, family = binomial())
+summary(model)
+
+fitted.results <- predict(model,newdata=testing,type='response')
+fitted.results <- ifelse(fitted.results > 0.5,1,0)
+misClasificError <- mean(fitted.results != testing$probhelp_no_problem)
+print(paste('Accuracy',1-misClasificError))
+
+p <- predict(model, newdata=testing, type="response")
+pr <- prediction(p, testing$probhelp_no_problem)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+exp(coef(model$finalModel))
+
+modelChi <- model$null.deviance - model$deviance
+modelChi
+chidf <- model$df.null - model$df.residual
+chidf
+chisq.prob <- 1 - pchisq(modelChi, chidf)
+chisq.prob
+R2.hl<-modelChi/model$null.deviance
+R2.hl
+R.cs <- 1 - exp ((model$deviance - model$null.deviance)/400) 
+R.cs
+
+```
+
