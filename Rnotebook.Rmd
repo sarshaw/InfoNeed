@@ -1,0 +1,373 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+#Import raw data for cleaning
+#All files are in tab delimilated format except the mouse_actions.csv
+
+setwd("raw-data") #set the directory
+
+filenames <- gsub("\\.csv$","", list.files(pattern="\\.csv$")) #list of all datasets
+
+#read all datasets
+for(i in filenames){
+  assign(i, read.csv((paste(i, ".csv", sep="")), header = TRUE, sep = '\t'))
+}
+
+mouse_actions = read.csv(file = "mouse_actions.csv", header = TRUE, sep = ',')
+
+```
+
+```{r}
+#Dimensions of dataframes
+setwd("raw-data")
+my_files <- list.files(pattern = "\\.csv$")
+my_data <- list()
+for (i in seq_along(my_files)) {
+    my_data[[i]] <- read.csv((file = my_files[i]), header =TRUE, sep = '\t')
+}
+names(my_data) <- gsub("\\.csv$", "", my_files) #list of all dataframes
+lapply(my_data, dim)
+```
+
+```{r}
+#Removing empty datasets from the workspace
+#(widgets, v2_notifications, thumbnails, values, tags_attributes_assignments, tags, snippets, questions, questionnaires, password_resets, old_mappings, emails, docs, chat_messages, bookmarks_and_tags, attributes)
+
+## create a function that returns a logical value
+isEmpty <- function(x) {
+    is.data.frame(x) && nrow(x) == 0L
+}
+## apply it over the environment
+empty <- unlist(lapply(my_data, isEmpty))
+## remove the empties
+rm(list = names(empty)[empty])
+
+#my_data[[2]] <- NULL
+
+```
+
+```{r}
+#Removing unrequired datasets
+rm(migrations, paste_actions, questionnaire_query_segments, copy_actions)
+```
+
+```{r}
+#processing datasets  one by one
+data = actions
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+#create new csv
+write.table(data1, file = 'actions_cleaned.csv', sep = '\t', row.names = FALSE, na = '-9999')
+```
+
+```{r}
+data = bookmarks
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+data1 <- subset(data1, select = -c(created_at_local_ms, created_at_local, thumbnail_id, notes, deleted_at, updated_at))
+library(dplyr)
+data1 = data1 %>% rename(bookmark_id = id, bookmark_created_at = created_at, bookmark_url = url, bookmark_title = title )
+#create new csv
+write.table(data1, file = 'bookmarks_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = clicks
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+#create new csv
+write.table(data1, file = 'clicks_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+#data = copy_actions
+#Subset participants
+#data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126, ]
+#create new csv
+#write.table(data1, file = 'copy_actions_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+#remove unnecessary variables
+data = demographics
+data <- subset(data, select = -c(consent_datacollection, consent_audio, consent_furtheruse, created_at, updated_at, study_date))
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+demographics2 = data1
+#create new csv
+write.table(data1, file = 'demographics_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = keystrokes
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+#create new csv
+write.table(data1, file = 'keystrokes_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = memberships
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+#create new csv
+write.table(data1, file = 'memberships_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = mouse_actions
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+#create new csv
+write.table(data1, file = 'mouse_actions_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = projects
+data$task_id = with(data, ifelse(title == 'Task 1', 1, ifelse(title == 'Task 2', 2, 0)))
+#change name of the column creator_id  to user_id
+colnames(data)[1] <- "project_id"
+colnames(data)[4] <- "user_id"
+#remove unnecessary variables
+data <- subset(data, select = c(project_id, title, description, user_id, task_id))
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+projecttask = subset(data1, select = c(task_id, project_id))
+#create new csv
+write.table(data1, file = 'projects_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = pages
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+data1 <- merge(data1, projecttask, by=c("project_id"), all=TRUE)
+data1 <- subset(data1, select = -c(is_coagmento, trash, permanently_delete, created_at_local_ms, created_at_local, thumbnail_id, date_local, updated_at))
+colnames(data1) <- paste("pages", colnames(data1), sep = "_")
+#create new csv
+write.table(data1, file = 'pages_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+
+```
+
+```{r}
+data = queries
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+projecttask
+data1 <- merge(data1, projecttask, by=c("project_id"), all=TRUE)
+
+library(stringr)
+#library(modeest)
+library(stringi)
+
+data1$query = as.character(data1$query)
+cleanQuery = data1$query
+text = iconv(cleanQuery, "UTF-8", "UTF-8", sub = '')
+length(text)
+
+# split words
+words_list = strsplit(text, " ")
+# words per query
+data1$query_word_count = sapply(words_list, length)
+
+text <- str_replace_all(text," ","")
+data1$cleanQuery = text
+data1$query_length <- str_length(data1$cleanQuery) #length, no. of chracters
+
+data1 <- subset(data1, select = -c(text, search_engine, created_at_local_ms, created_at_local, updated_at, date_local, stage_id, trash, permanently_delete, is_coagmento))
+colnames(data1) <- paste("query", colnames(data1), sep = "_")
+
+#create new csv
+write.table(data1, file = 'queries_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = querysegment_labels_users
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+
+data1 <- subset(data1, select = -c(deleted, created_at, updated_at, date_local))
+colnames(data1) <- paste("queryseg", colnames(data1), sep = "_")
+#create new csv
+write.table(data1, file = 'querysegment_labels_users_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = questionnaire_help_and_barriers
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+data1$task_id = with(data1, ifelse(stage_id == 3, 0, ifelse(stage_id == 15, 1, 2)))
+
+probhelp = data1
+probhelp[c("difficult_articulate", "irrelevant_results", "topknowledge_lack", "patient_lack", "credibility_uncertain", "sources_unaware", "toomuch_information", "source_unavailable", "no_problem")] <- NA
+probhelp[c("page_recommendation", "people_recommendation", "query_recommendation", "strategy_recommendation", "no_help_needed", "system_unsatisfactory")] <- NA 
+
+#create  separate boolean variable for  problems and helps
+probhelp$difficult_articulate <- as.integer(grepl(pattern = "difficult_articulate", x = probhelp$barriers))
+probhelp$irrelevant_results <- as.integer(grepl(pattern = "irrelevant_results", x = probhelp$barriers))
+probhelp$topknowledge_lack <- as.integer(grepl(pattern = "topknowledge_lack", x = probhelp$barriers))
+probhelp$patient_lack <- as.integer(grepl(pattern = "patient_lack", x = probhelp$barriers))
+probhelp$credibility_uncertain <- as.integer(grepl(pattern = "credibility_uncertain", x = probhelp$barriers))
+probhelp$sources_unaware <- as.integer(grepl(pattern = "sources_unaware", x = probhelp$barriers))
+probhelp$toomuch_information <- as.integer(grepl(pattern = "toomuch_information", x = probhelp$barriers))
+probhelp$source_unavailable <- as.integer(grepl(pattern = "source_unavailable", x = probhelp$barriers))
+probhelp$no_problem <- as.integer(grepl(pattern = "no_problem", x = probhelp$barriers))
+probhelp$page_recommendation <- as.integer(grepl(pattern = "page_recommendation", x = probhelp$help))
+probhelp$people_recommendation <- as.integer(grepl(pattern = "people_recommendation", x = probhelp$help))
+probhelp$query_recommendation <- as.integer(grepl(pattern = "query_recommendation", x = probhelp$help))
+probhelp$strategy_recommendation <- as.integer(grepl(pattern = "strategy_recommendation", x = probhelp$help))
+probhelp$no_help_needed <- as.integer(grepl(pattern = "no_help_needed", x = probhelp$help))
+probhelp$system_unsatisfactory <- as.integer(grepl(pattern = "system_unsatisfactory", x = probhelp$help))
+
+probhelp <- subset(probhelp, select = -c(segment_id, created_at_local_ms, created_at_local, updated_at))
+colnames(probhelp) <- paste("probhelp", colnames(probhelp), sep = "_")
+
+#questionnaire_help_and_barriers_cleaned = probhelp
+#create new csv
+write.table(probhelp, file = 'questionnaire_help_and_barriers_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = questionnaire_posttasks
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+data1$task_id = with(data1, ifelse(stage_id == 4, 0, ifelse(stage_id == 16, 1, 2)))
+#create new csv
+write.table(data1, file = 'questionnaire_posttasks_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = questionnaire_pretasks
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+data1$task_id = with(data1, ifelse(stage_id == 2, 0, ifelse(stage_id == 6, 1, 2)))
+#create new csv
+write.table(data1, file = 'questionnaire_pretasks_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = scroll_actions
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+#create new csv
+write.table(data1, file = 'scroll_actions_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = stages
+colnames(data)[1] = "stage_id"
+#remove unnecessary variables
+data <- subset(data, select = c(stage_id, title, page, timed, time_limit))
+data$task_id = with(data, ifelse(stage_id == 2, 0, ifelse(stage_id == 3, 0, ifelse(stage_id == 4, 0, ifelse(stage_id == 6, 1, ifelse(stage_id == 15, 1, ifelse(stage_id == 16, 1, ifelse(stage_id == 17, 2, ifelse(stage_id == 19, 2, ifelse(stage_id == 20, 2, 999))))))))))
+stages2 = data 
+#create new csv
+write.table(data, file = 'stages_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = stages_progress
+#Subset participants
+data1 = data[data$user_id == 37 | data$user_id == 49 | data$user_id == 59 | data$user_id == 70 | data$user_id == 94 | data$user_id == 97 | data$user_id == 101 | data$user_id == 110 | data$user_id == 112 | data$user_id == 113 | data$user_id == 116 | data$user_id == 118 | data$user_id == 119 | data$user_id == 123 | data$user_id == 125 | data$user_id == 126 | data$user_id == 127, ]
+#create new csv
+write.table(data1, file = 'stages_progress_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = tasks
+colnames(data)[1] = "task_id"
+#remove unnecessary variables
+data <- subset(data, select = c(task_id, description, complexity, need, product, goal))
+tasks2 = data
+#create new csv
+write.table(data, file = 'tasks_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+#merge two dataframes using common variable(s)
+mydata <- merge(tasks2, stages2, by=c("task_id"), all=TRUE)
+write.table(mydata, file = 'tasks_stages_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+data = users
+#remove unnecessary variables
+data <- subset(data, select = c(id, created_at, updated_at, last_login, last_logout))
+#Subset participants
+data1 = data[data$id == 37 | data$id == 49 | data$id == 59 | data$id == 70 | data$id == 94 | data$id == 97 | data$id == 101 | data$id == 110 | data$id == 112 | data$id == 113 | data$id == 116 | data$id == 118 | data$id == 119 | data$id == 123 | data$id == 125 | data$id == 126 | data$id == 127, ]
+colnames(data1)[1] = "user_id"
+users2 = data1
+#create new csv
+write.table(data1, file = 'users_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+#merge two dataframes using common variable(s)
+mydata <- merge(demographics2, users2, by=c("user_id"), all=TRUE)
+write.table(mydata, file = 'users_demographics_cleaned.csv', row.names = FALSE, sep = '\t', na = '-9999')
+```
+
+```{r}
+#Import cleaned data
+setwd("clean-data")
+
+filenames <- gsub("\\.csv$","", list.files(pattern="\\.csv$")) #list of all datasets
+
+for(i in filenames){
+  assign(i, read.csv((paste(i, ".csv", sep="")), header = TRUE, sep = '\t'))
+}
+```
+
+```{r}
+#for adding project, stage, and task ids to datasets
+taskstage <- subset(tasks_stages_cleaned, stage_id == 3 | stage_id == 15 | stage_id == 19, select = c(task_id, stage_id))
+projecttaskstage <- merge(taskstage, projecttask, by=c("task_id"), all=TRUE)
+```
+
+```{r}
+#Import cleaned datasets for merging
+#copy bookmarks_cleaned, queries_cleaned, pages_cleaned, questionnaire_help_and_barriers_cleaned, querysegment_labels_users_cleaned in a folder and change the file #name sufffixes to _merge before importing
+setwd("merge")
+filenames <- gsub("\\.csv$","", list.files(pattern="\\.csv$")) #list of all datasets
+
+for(i in filenames){
+  assign(i, read.csv((paste(i, ".csv", sep="")), header = TRUE, sep = '\t'))
+}
+```
+
+```{r}
+#merge all files by timestamp
+#remove columns
+pages_merge <- subset(pages_merge, select = -c(pages_details, pages_active_tab, pages_query_segment_id_automatic))
+queries_merge <- subset(queries_merge, select = -c(query_details))
+querysegment_merge <- subset(querysegment_merge, select = -c(queryseg_project_id))
+
+#pages_merge <- pages_merge[!grepl("newtab", x = pages_merge$pages_host),]
+
+# merge two dataframes
+query = merge(queries_merge, querysegment_merge, by.x= "query_query_segment_id", by.y= "queryseg_id", all = FALSE, all.x = TRUE, all.y = TRUE)
+
+#unique (unlist (lapply (merge1, function (x) which (is.na (x)))))
+
+merge2 = merge(query, pages_merge, by.x= c("query_created_at"), by.y= c("pages_created_at"), all = TRUE)
+
+help_and_barriers_merge <- merge(help_and_barriers_merge, projecttaskstage, by.x = "probhelp_stage_id", by.y =c("stage_id"), all=TRUE)
+
+merge3 = merge(merge2, help_and_barriers_merge, by.x= c("query_created_at"), by.y= c("probhelp_created_at"), all = TRUE)
+
+merge4 = merge(merge3, bookmarks_merge, by.x= c("query_created_at"), by.y= c("bookmark_created_at"), all = TRUE)
+
+write.table(merge4, file = 'merged.csv', row.names = FALSE, sep = '\t', na = '-9999')
+
+merge_data = read.csv(file = 'merged.csv', header = TRUE, sep = '\t', na = '-9999')
+```
+
+```{r}
+
+```
+
+
+
+
