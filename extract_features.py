@@ -3,9 +3,6 @@ from __future__ import print_function
 import pandas as pd
 import numpy as np
 
-#Note: problem_help does not increment number of queries.
-
-
 
 def extract_session_features(session_df):
     user_id = session_df['user_id'].tolist()[0]
@@ -15,27 +12,23 @@ def extract_session_features(session_df):
     print(user_id,stage_id,project_id)
     task_num = TASK_STAGETOID[stage_id]
 
-    # creation_time_columnname = 'created_at'
     creation_time_columnname = 'timestamp'
 
 
-    session_progress_df = pd.read_csv('./data-analysis/clean-data/stages_progress.csv')
+    session_progress_df = pd.read_csv('./stages_progress.csv')
     task_start_time = session_progress_df[(session_progress_df['user_id']==user_id)&(session_progress_df['stage_id']==stage_id)]['created_at'].tolist()[0]
     task_start_time = pd.to_datetime(task_start_time)
     session_df[creation_time_columnname] = pd.to_datetime(session_df[creation_time_columnname])
     session_df['session_time_elapsed']= session_df[creation_time_columnname]-task_start_time
     session_df['session_time_elapsed'] = session_df['session_time_elapsed'].dt.total_seconds()
 
-
-    # session_df['query_test'] = session_df['query']
-    contentpages_unique_firstvisit = pd.read_csv('./data-analysis/clean-data/pages_cleaned.csv',sep='\t')
-
+    contentpages_unique_firstvisit = pd.read_csv('./pages_cleaned.csv',sep='\t')
 
     contentpages_unique_firstvisit = contentpages_unique_firstvisit[contentpages_unique_firstvisit['project_id']==project_id]
     contentpages_unique_firstvisit = contentpages_unique_firstvisit[contentpages_unique_firstvisit['pages_is_query']==0]
     contentpages_unique_firstvisit = contentpages_unique_firstvisit[contentpages_unique_firstvisit['url']!='https://www.google.com/']
-    contentpages_unique_firstvisit = contentpages_unique_firstvisit[~contentpages_unique_firstvisit['url'].str.contains('https://problemhelp.comminfo.rutgers.edu')]
-    contentpages_unique_firstvisit = contentpages_unique_firstvisit[~contentpages_unique_firstvisit['url'].str.contains('http://problemhelp.comminfo.rutgers.edu:9001')]
+    contentpages_unique_firstvisit = contentpages_unique_firstvisit[~contentpages_unique_firstvisit['url'].str.contains('https://problemhelp.comminfo')]
+    contentpages_unique_firstvisit = contentpages_unique_firstvisit[~contentpages_unique_firstvisit['url'].str.contains('http://problemhelp.comminfo')]
     contentpages_unique_firstvisit = contentpages_unique_firstvisit[~contentpages_unique_firstvisit['url'].str.contains('chrome://newtab/')]
     contentpages_unique_firstvisit = contentpages_unique_firstvisit.groupby('url',as_index=False).nth(0)
     contentpages_unique_firstvisit['created_at'] = pd.to_datetime(contentpages_unique_firstvisit['created_at'])
@@ -48,7 +41,7 @@ def extract_session_features(session_df):
     session_df['is_serp'] = session_df['url'].str.contains('https://www.google.com/search')
 
 
-    queries_unique_firstvisit = pd.read_csv('./data-analysis/clean-data/queries_cleaned.csv',sep='\t')
+    queries_unique_firstvisit = pd.read_csv('./queries_cleaned.csv',sep='\t')
     queries_unique_firstvisit = queries_unique_firstvisit[queries_unique_firstvisit['project_id']==project_id]
     q = []
     for(query,group) in queries_unique_firstvisit.groupby('query'):
@@ -58,19 +51,11 @@ def extract_session_features(session_df):
     queries_unique_firstvisit = pd.DataFrame(q)
     queries_unique_firstvisit['created_at'] = pd.to_datetime(queries_unique_firstvisit['created_at'])
     queries_unique_firstvisit = queries_unique_firstvisit.sort_values(by='created_at',ascending=True)
-    # print(queries_unique_firstvisit)
-    # print(queries_unique_firstvisit['query'])
-    # print(queries_unique_firstvisit['created_at'])
-    # exit()
-    # queries_unique_firstvisit = queries_unique_firstvisit.groupby('query',as_index=False).nth(0)
-
-
-
-
+  
 
     session_df['timestamp_test'] = session_df[creation_time_columnname]
 
-    bookmarks_df = pd.read_csv('./data-analysis/clean-data/bookmarks_cleaned.csv',sep='\t')
+    bookmarks_df = pd.read_csv('./bookmarks_cleaned.csv',sep='\t')
     bookmarks_df = bookmarks_df[bookmarks_df['project_id']==project_id]
     session_df['session_num_bookmarks']= 0
 
@@ -79,20 +64,7 @@ def extract_session_features(session_df):
         bookmark_created_at = pd.to_datetime(row['created_at'])
 
         n_bookmarks += 1
-        # print(session_df[session_df[creation_time_columnname]>=bookmark_created_at][creation_time_columnname])
         session_df.loc[session_df[creation_time_columnname]>=bookmark_created_at,'session_num_bookmarks'] = n_bookmarks
-
-
-    # clicks_df = pd.read_csv('./data-analysis/clean-data/clicks_cleaned.csv')
-    # clicks_df = clicks_df[clicks_df['project_id']==project_id]
-    # session_df['session_num_clicks']= 0
-    # n_clicks = 0
-    # for (n,row) in clicks_df.iterrows():
-    #     click_created_at = pd.to_datetime(row['created_at'])
-    #     print(click_created_at)
-    #     n_clicks += 1
-    #     session_df.loc[session_df[creation_time_columnname]>=click_created_at,'session_num_clicks'] = n_clicks
-
 
     session_df['session_num_content_distinct'] = 0
     n_pages = 0
@@ -124,20 +96,15 @@ def extract_actionwise_features(session_df):
     print(user_id,stage_id,project_id)
     task_num = TASK_STAGETOID[stage_id]
 
-    # creation_time_columnname = 'created_at'
     creation_time_columnname = 'timestamp'
 
 
-    session_progress_df = pd.read_csv('./data-analysis/clean-data/stages_progress.csv')
+    session_progress_df = pd.read_csv('./stages_progress.csv')
     task_stop_time = session_progress_df[(session_progress_df['user_id']==user_id)&(session_progress_df['stage_id']==(stage_id+1))]['created_at'].tolist()[0]
     task_stop_time = pd.to_datetime(task_stop_time)
 
-    # session_df['user_id_temp'] = user_id
-    # session_df['project_id_temp'] = project_id
     session_df['time_elapsed_action'] = (pd.to_datetime(session_df[creation_time_columnname].shift(-1))-pd.to_datetime(session_df[creation_time_columnname])).dt.total_seconds()
-    # print(task_stop_time,type(task_stop_time))
-    # print(session_df[creation_time_columnname].tolist()[-1],type(session_df[creation_time_columnname].tolist()[-1]))
-    # print(type(session_df['time_elapsed_action']))
+    
     session_df.iloc[-1,session_df.columns.get_loc('time_elapsed_action')] = (task_stop_time-session_df[creation_time_columnname].tolist()[-1]).total_seconds()
 
     session_df['session_time_elapsed_afteraction'] = session_df['session_time_elapsed']+session_df['time_elapsed_action']
@@ -320,9 +287,6 @@ def extract_features(session_df):
     return session_df
 
 
-
-
-
 TASK_STAGES = [3,15,19]
 TASK_STAGETOID = {3:0,15:1,19:2}
 TASK_COMPLEXITIES = ['Moderate','High','Low']
@@ -330,7 +294,7 @@ TASK_NEEDS = ['Cognitive','Cognitive','Social']
 
 VALID_USERIDS = [97, 123, 37, 70, 113, 127, 110, 112, 49, 116, 126, 118, 119, 59, 125, 94, 101]
 if __name__=='__main__':
-    cleaned_data = pd.read_csv('./data-analysis/Final.csv')
+    cleaned_data = pd.read_csv('./Final.csv')
     cleaned_data['timestamp'] = pd.to_datetime(cleaned_data['timestamp'])
     cleaned_data = cleaned_data.sort_values(by=['user_id','task_id','timestamp'],ascending=[True,True,True])
     cleaned_data.to_csv('./Final.csv')
