@@ -31,7 +31,7 @@ SESSION_FEATURES = ['session_time_elapsed','session_num_bookmarks','session_num_
 PROBLEMS = ['probhelp_difficult_articulate','probhelp_irrelevant_results','probhelp_topknowledge_lack',
     'probhelp_patience_lack','probhelp_credibility_uncertain','probhelp_sources_unaware',
     'probhelp_toomuch_information','probhelp_source_unavailable','probhelp_no_problem']
-# ALL_FEATURES = PREV_FEATURES+CURRENT_FEATURES+SESSION_FEATURES+PROBLEMS
+
 ALL_FEATURES = PREV_FEATURES+SESSION_FEATURES+PROBLEMS
 HELPS = ['probhelp_page_recommendation','probhelp_people_recommendation',
     'probhelp_query_recommendation','probhelp_strategy_recommendation','probhelp_no_help_needed','probhelp_system_unsatisfactory']
@@ -40,18 +40,6 @@ N_TESTS = 100
 
 full_df = pd.read_csv('./all_problemhelp_features.csv')
 prevonly_df = pd.read_csv('./prevanalysis_problemhelp_features.csv')
-#
-# print(full_df.columns.values)
-# for (n,group) in full_df.groupby('task_id'):
-#     print("TASK",n)
-#     print(len(group.index))
-#
-#
-#
-# for (n,group) in full_df.groupby('task_id'):
-#     print("TASK",n)
-#     print(len(group.index))
-# exit()
 
 full_df['reformulation_type_Generalization'] = (full_df['reformulation_type']==1).astype(int)
 prevonly_df['reformulation_type_Generalization'] = (prevonly_df['reformulation_type']==1).astype(int)
@@ -74,10 +62,7 @@ prevonly_df['reformulation_type_SpellingCorrection'] = (prevonly_df['reformulati
 full_df['reformulation_type_StemIdentical'] = (full_df['reformulation_type']==7).astype(int)
 prevonly_df['reformulation_type_StemIdentical'] = (prevonly_df['reformulation_type']==7).astype(int)
 
-
-
 out_scores = dict()
-
 
 out_df = []
 for (featurename,features,df) in [('prev',PREV_FEATURES,prevonly_df),#('curr',CURRENT_FEATURES,prevonly_df),
@@ -126,13 +111,10 @@ for (featurename,features,df) in [('prev',PREV_FEATURES,prevonly_df),#('curr',CU
         out_scores[('lr',featurename,h,'recall')] = recalls
         out_scores[('lr',featurename,h,'f1')] = fs
 
-# print(pd.DataFrame(out_df))
 pd.DataFrame(out_df).pivot(index='features', columns='help', values='accuracy').round(decimals=2).to_csv('dct_accuracy.csv')
 pd.DataFrame(out_df).pivot(index='features', columns='help', values='precision').round(decimals=2).to_csv('dct_precision.csv')
 pd.DataFrame(out_df).pivot(index='features', columns='help', values='recall').round(decimals=2).to_csv('dct_recall.csv')
 pd.DataFrame(out_df).pivot(index='features', columns='help', values='f1').round(decimals=2).to_csv('dct_f1.csv')
-
-# exit()
 
 out_df = []
 for (featurename,features,df) in [('prev',PREV_FEATURES,prevonly_df),#('curr',CURRENT_FEATURES,prevonly_df),
