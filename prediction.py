@@ -78,19 +78,6 @@ prevonly_df['reformulation_type_StemIdentical'] = (prevonly_df['reformulation_ty
 
 out_scores = dict()
 
-# d = pd.DataFrame(prevonly_df,
-#                  columns=HELPS+PROBLEMS)
-# # Compute the correlation matrix
-# corr = d.corr()
-# corr.to_csv('test.csv')
-#
-# # Draw the heatmap with the mask and correct aspect ratio
-# sns.heatmap(corr)
-# plt.show()
-# exit()
-
-
-
 
 out_df = []
 for (featurename,features,df) in [('prev',PREV_FEATURES,prevonly_df),#('curr',CURRENT_FEATURES,prevonly_df),
